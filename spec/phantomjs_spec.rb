@@ -9,7 +9,7 @@ describe Phantomjs do
       it "raises an error" do
         script = File.expand_path('./spec/runner.js')
         expect {
-          Phantomjs.run(script, 'foo1', 'foo2')
+          Phantomjs.run(script, nil, 'foo1', 'foo2')
         }.to raise_error(Phantomjs::CommandNotFoundError)
       end
     end
@@ -17,20 +17,20 @@ describe Phantomjs do
     it 'raises an error when the script does not exist' do
       script = File.expand_path('./doesnt_exist.js')
       expect {
-        Phantomjs.run(script)
+        Phantomjs.run(script, nil)
       }.to raise_error(Phantomjs::NoSuchPathError)
     end
 
     it "runs phantomjs binary with the correct arguments" do
       script = File.expand_path('./spec/runner.js')
-      result = Phantomjs.run(script, 'foo1', 'foo2')
+      result = Phantomjs.run(script, nil, 'foo1', 'foo2')
       result.should eq("bar\nfoo1\nfoo2\n")
     end
 
     it "accepts a block that will get called for each line of output" do
       line = ''
       script = File.expand_path('./spec/runner.js')
-      Phantomjs.run(script, 'foo1', 'foo2') do |l|
+      Phantomjs.run(script, nil, 'foo1', 'foo2') do |l|
         line << l
       end
       line.should eq("bar\nfoo1\nfoo2\n")
@@ -39,7 +39,7 @@ describe Phantomjs do
     it "accepts empty parameters" do
       line = ''
       script = File.expand_path('./spec/runner.js')
-      Phantomjs.run(script, 'foo1', 'foo2', '') do |l|
+      Phantomjs.run(script, nil, 'foo1', 'foo2', '') do |l|
         line << l
       end
       line.should eq("bar\nfoo1\nfoo2\n\n")
@@ -48,7 +48,7 @@ describe Phantomjs do
     it "accepts parameters with spaces" do
       line = ''
       script = File.expand_path('./spec/runner.js')
-      Phantomjs.run(script, 'foo bar', 'foo2') do |l|
+      Phantomjs.run(script, nil, 'foo bar', 'foo2') do |l|
         line << l
       end
       line.should eq("bar\nfoo bar\nfoo2\n")
@@ -56,13 +56,13 @@ describe Phantomjs do
 
     it "accepts empty parameters without block" do
       script = File.expand_path('./spec/runner.js')
-      output = Phantomjs.run(script, 'foo1', 'foo2', '')
+      output = Phantomjs.run(script, nil, 'foo1', 'foo2', '')
       output.should eq("bar\nfoo1\nfoo2\n\n")
     end
 
     it "accepts parameters with spaces without block" do
       script = File.expand_path('./spec/runner.js')
-      output = Phantomjs.run(script, 'foo bar', 'foo2')
+      output = Phantomjs.run(script, nil, 'foo bar', 'foo2')
       output.should eq("bar\nfoo bar\nfoo2\n")
     end
   end
@@ -73,7 +73,7 @@ describe Phantomjs do
         console.log(phantom.args[0]);
         phantom.exit();
       )
-      result = Phantomjs.inline(js, 'works!')
+      result = Phantomjs.inline(js, nil, 'works!')
       result.should eq("works!\n")
     end
 
@@ -91,7 +91,7 @@ describe Phantomjs do
       )
       expected = "running interval\nctr is 0\nctr is 1\nctr is 2\n"
       str = '';
-      result = Phantomjs.inline(js) do |line|
+      result = Phantomjs.inline(js, nil) do |line|
         str << line
       end
       str.should eq(expected)

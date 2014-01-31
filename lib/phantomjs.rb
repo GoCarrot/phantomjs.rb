@@ -5,27 +5,27 @@ require "phantomjs/errors"
 
 class Phantomjs
 
-  def self.run(path, *args, &block)
-    Phantomjs.new.run(path, *args, &block)
+  def self.run(path, handler, *args, &block)
+    Phantomjs.new.run(path, handler, *args, &block)
   end
 
-  def run(path, *args)
+  def run(path, handler, *args)
     epath = File.expand_path(path)
     raise NoSuchPathError.new(epath) unless File.exist?(epath)
     block = block_given? ? Proc.new : nil
-    execute(epath, args, block)
+    execute(epath, handler, args, block)
   end
 
-  def self.inline(script, *args, &block)
-    Phantomjs.new.inline(script, *args, &block)
+  def self.inline(script, handler, *args, &block)
+    Phantomjs.new.inline(script, handler, *args, &block)
   end
 
-  def inline(script, *args)
+  def inline(script, handler, *args)
     file = Tempfile.new('script.js')
     file.write(script)
     file.close
     block = block_given? ? Proc.new : nil
-    execute(file.path, args, block)
+    execute(file.path, handler, args, block)
   end
 
   def self.configure(&block)
@@ -34,12 +34,14 @@ class Phantomjs
 
   private
 
-  def execute(path, arguments, block)
+  def execute(path, handler, arguments, block)
     begin
       if block
         IO.popen([exec, path, arguments].flatten).each_line do |line|
           block.call(line)
         end
+      elsif handler && defined?(EM)
+        EM.popen([exec, path, arguments].join(" "), handler)
       else
         IO.popen([exec, path, arguments].flatten).read
       end
