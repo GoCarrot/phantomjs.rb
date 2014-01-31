@@ -41,7 +41,7 @@ class Phantomjs
           block.call(line)
         end
       elsif handler && defined?(EM)
-        EM.popen([exec, path, arguments].join(" "), handler)
+        EM.popen([exec, path, arguments].join(" "), *[handler].flatten)
       else
         IO.popen([exec, path, arguments].flatten).read
       end
